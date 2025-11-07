@@ -8,7 +8,7 @@ import io
 
 # Словник для зберігання псевдокоду, розбитого по функціях
 FUNCTION_CODE_MAP = {}
-
+GLOBAL_TEXT_SCALE_FACTOR = 1.0
 # Стан для відстеження перетягування об'єктів на полотні
 drag_data = {"item": None, "x": 0, "y": 0, "arrow_id": None, "point_index": -1}
 
@@ -260,7 +260,9 @@ def draw_ellipse(canvas, x, y_top, text, h_scale, v_scale, color):
 
     # 1. Створюємо текст (для розрахунку висоти)
     text_id = canvas.create_text(
-        x, y_top + TEXT_PADDING, text=text, font=("Arial", int(11 * v_scale), "bold"), width=text_width_constraint,
+        x, y_top + TEXT_PADDING, text=text,
+        font=("Arial", int(11 * v_scale * GLOBAL_TEXT_SCALE_FACTOR), "bold"),  # <-- ЗМІНА ТУТ
+        width=text_width_constraint,
         anchor="n"
     )
     # 2. Розраховуємо реальну висоту блоку
@@ -288,7 +290,6 @@ def draw_ellipse(canvas, x, y_top, text, h_scale, v_scale, color):
 
     return (x, y1)  # Повертаємо координати нижньої точки
 
-
 def draw_rectangle(canvas, x, y_top, text, h_scale, v_scale, color):
     """Малює стандартний блок операції (Прямокутник)."""
     W = BLOCK_WIDTH_DEFAULT * h_scale
@@ -300,7 +301,9 @@ def draw_rectangle(canvas, x, y_top, text, h_scale, v_scale, color):
 
     # 1. Створюємо текст
     text_id = canvas.create_text(
-        x, y_top + TEXT_PADDING, text=text, font=("Arial", int(14 * v_scale)), width=text_width_constraint, anchor="n"
+        x, y_top + TEXT_PADDING, text=text,
+        font=("Arial", int(14 * v_scale * GLOBAL_TEXT_SCALE_FACTOR)),  # <-- ЗМІНА ТУТ
+        width=text_width_constraint, anchor="n"
     )
     # 2. Розраховуємо висоту
     text_bbox = canvas.bbox(text_id)
@@ -341,7 +344,7 @@ def draw_rhombus(canvas, x, y_top, text, h_scale, v_scale, color):
 
     # 1. Розраховуємо ширину ромба на основі довжини тексту
     try:
-        f = tk.font.Font(family="Arial", size=int(14 * v_scale));
+        f = tk.font.Font(family="Arial", size=int(14 * v_scale * GLOBAL_TEXT_SCALE_FACTOR)); # <-- ЗМІНА ТУТ
         text_width = f.measure(text)
     except Exception:
         text_width = 100
@@ -362,7 +365,9 @@ def draw_rhombus(canvas, x, y_top, text, h_scale, v_scale, color):
 
     # 4. Малюємо текст
     text_width_constraint = W - (W / 2) - TEXT_PADDING + 100
-    text_id = canvas.create_text(x, y_center, text=text, font=("Arial", int(14 * v_scale)), width=text_width_constraint,
+    text_id = canvas.create_text(x, y_center, text=text,
+                                 font=("Arial", int(14 * v_scale * GLOBAL_TEXT_SCALE_FACTOR)), # <-- ЗМІНА ТУТ
+                                 width=text_width_constraint,
                                  anchor="center")
     canvas.tag_raise(text_id)
     canvas.itemconfig(text_id, tags=canvas.gettags(text_id) + ("block_text", group_tag))
@@ -386,7 +391,9 @@ def draw_subroutine(canvas, x, y_top, text, h_scale, v_scale, color):
 
     # 1. Текст та розрахунок висоти
     text_id = canvas.create_text(
-        x, y_top + TEXT_PADDING, text=text, font=("Arial", int(14 * v_scale)), width=text_width_constraint, anchor="n"
+        x, y_top + TEXT_PADDING, text=text,
+        font=("Arial", int(14 * v_scale * GLOBAL_TEXT_SCALE_FACTOR)), # <-- ЗМІНА ТУТ
+        width=text_width_constraint, anchor="n"
     )
     text_bbox = canvas.bbox(text_id)
     text_height = 0 if not text_bbox else (text_bbox[3] - text_bbox[1])
@@ -428,7 +435,8 @@ def draw_parallelogram(canvas, x, y_top, text, h_scale, v_scale, color):
     text_width_constraint = W - (TEXT_PADDING * 2) - skew_offset
 
     # 1. Текст та розрахунок висоти
-    text_id = canvas.create_text(x, y_top + TEXT_PADDING, text=text, font=("Arial", int(14 * v_scale)),
+    text_id = canvas.create_text(x, y_top + TEXT_PADDING, text=text,
+                                 font=("Arial", int(14 * v_scale * GLOBAL_TEXT_SCALE_FACTOR)), # <-- ЗМІНА ТУТ
                                  width=text_width_constraint, anchor="n")
     text_bbox = canvas.bbox(text_id)
     text_height = 0 if not text_bbox else (text_bbox[3] - text_bbox[1])
@@ -460,7 +468,6 @@ def draw_parallelogram(canvas, x, y_top, text, h_scale, v_scale, color):
 
     return (x, y_top + H)
 
-
 def draw_hexagon(canvas, x, y_top, text, h_scale, v_scale, color):
     """Малює блок циклу 'for' (Шестикутник)."""
     TEXT_PADDING = 10
@@ -473,7 +480,7 @@ def draw_hexagon(canvas, x, y_top, text, h_scale, v_scale, color):
 
     # 1. Розрахунок ширини на основі тексту
     try:
-        f = tk.font.Font(family="Arial", size=int(14 * v_scale));
+        f = tk.font.Font(family="Arial", size=int(14 * v_scale * GLOBAL_TEXT_SCALE_FACTOR)); # <-- ЗМІНА ТУТ
         text_width = f.measure(text)
     except Exception:
         text_width = 100
@@ -497,7 +504,9 @@ def draw_hexagon(canvas, x, y_top, text, h_scale, v_scale, color):
                           tags=("block", "hex", group_tag))
     # 4. Малюємо текст
     text_width_constraint = W - (2 * hex_offset) - (2 * TEXT_PADDING) + 100
-    text_id = canvas.create_text(x, y_center, text=text, font=("Arial", int(14 * v_scale)), width=text_width_constraint,
+    text_id = canvas.create_text(x, y_center, text=text,
+                                 font=("Arial", int(14 * v_scale * GLOBAL_TEXT_SCALE_FACTOR)), # <-- ЗМІНА ТУТ
+                                 width=text_width_constraint,
                                  anchor="center")
     canvas.tag_raise(text_id)
     canvas.itemconfig(text_id, tags=canvas.gettags(text_id) + ("block_text", group_tag))
@@ -1824,6 +1833,7 @@ def draw_flowchart_window(root, function_map):
     rhombus_color_var = tk.StringVar(value="#FFFFE0");
     sub_color_var = tk.StringVar(value="#CCEEFF");
     hex_color_var = tk.StringVar(value="#D8BFD8");
+    global_text_scale_var = tk.DoubleVar(value=GLOBAL_TEXT_SCALE_FACTOR)
 
     # 3.5. Змінні для чекбоксів
     skip_init_var = tk.BooleanVar(value=False)
@@ -1917,6 +1927,15 @@ def draw_flowchart_window(root, function_map):
         except Exception as e:
             print(f"Помилка кліку по міні-карті: {e}")
 
+    def update_text_scale_and_redraw(*args):
+        """Оновлює глобальний масштаб тексту та викликає перемальовування."""
+        global GLOBAL_TEXT_SCALE_FACTOR
+        try:
+            GLOBAL_TEXT_SCALE_FACTOR = global_text_scale_var.get()
+        except tk.TclError:
+            GLOBAL_TEXT_SCALE_FACTOR = 1.0
+        update_drawing()  # Викликати повне оновлення
+
     # --- 4.1. Обробники навігації (Pan/Zoom/Scroll) ---
 
     def _on_pan_start(event):
@@ -1945,33 +1964,33 @@ def draw_flowchart_window(root, function_map):
 
             # Визначаємо, чи Zoom In чи Zoom Out
             if event.delta > 0 or event.num == 4:
-                # Zoom In (Збільшення: множимо на 10.0)
                 scale_change = ZOOM_STEP_MULTIPLIER
             else:
-                # Zoom Out (Зменшення: ділимо на 10.0, але не нижче 0.1)
                 scale_change = 1.0 / ZOOM_STEP_MULTIPLIER
 
-            # 1. Скидаємо Canvas до 1.0 перед перерахунком (це для коректного збереження ручного стану)
-            # Щоб застосувати чистий множник, ми повинні знати поточний стан Zoom
-            scale_reset_x = 1.0 / GLOBAL_SCALE_FACTOR_X
-            scale_reset_y = 1.0 / GLOBAL_SCALE_FACTOR_Y
-            canvas.scale("all", 0, 0, scale_reset_x, scale_reset_y)
+            # --- ОСЬ ЗМІНА ---
 
-            # 2. Оновлюємо глобальний фактор
-            GLOBAL_SCALE_FACTOR_X *= scale_change
-            GLOBAL_SCALE_FACTOR_Y *= scale_change
+            new_scale_factor = GLOBAL_SCALE_FACTOR_X * scale_change
 
             # Обмеження мінімального масштабу (наприклад, до 0.1x)
-            GLOBAL_SCALE_FACTOR_X = max(0.1, GLOBAL_SCALE_FACTOR_X)
-            GLOBAL_SCALE_FACTOR_Y = max(0.1, GLOBAL_SCALE_FACTOR_Y)
+            if new_scale_factor < 0.1:
+                # Розраховуємо точний множник, щоб дійти до 0.1
+                final_scale_change = 0.1 / GLOBAL_SCALE_FACTOR_X
+                if GLOBAL_SCALE_FACTOR_X <= 0.1: return  # Вже на мінімумі або нижче
+                GLOBAL_SCALE_FACTOR_X = 0.1
+                GLOBAL_SCALE_FACTOR_Y = 0.1
+                scale_change = final_scale_change  # Використовуємо точний множник
+            else:
+                GLOBAL_SCALE_FACTOR_X = new_scale_factor
+                GLOBAL_SCALE_FACTOR_Y = new_scale_factor
 
-            # 3. Повторно застосовуємо новий візуальний Zoom
-            canvas.scale("all", 0, 0, GLOBAL_SCALE_FACTOR_X, GLOBAL_SCALE_FACTOR_Y)
+            # 1. Застосовуємо масштабування лише на РІЗНИЦЮ
+            # Це не викликає миготіння, оскільки ми не скидаємо до 1.0х
+            canvas.scale("all", 0, 0, scale_change, scale_change)
 
-            # 4. Обчислюємо новий розмір шрифту та оновлюємо GUI
-            new_h = GLOBAL_SCALE_FACTOR_X
-                # Синхронізація шкали Zoom
-            zoom_display_var.set(f"{new_h:.2f}x")
+            # 2. Оновлюємо GUI
+            zoom_display_var.set(f"{GLOBAL_SCALE_FACTOR_X:.2f}x")
+            # --- КІНЕЦЬ ЗМІНИ ---
 
             # Оновлюємо ScrollRegion
             canvas.configure(scrollregion=canvas.bbox("all"))
@@ -2102,13 +2121,10 @@ def draw_flowchart_window(root, function_map):
             traceback.print_exc()
 
     # --- 4.3. Головна функція оновлення ---
-
     def update_drawing(*args):
         """
         Повністю перемальовує полотно та ПОВТОРНО ЗАСТОСОВУЄ ТЕКСТОВИЙ ТА ВІЗУАЛЬНИЙ ЗУМ.
         """
-        global GLOBAL_SCALE_FACTOR_X
-        global GLOBAL_SCALE_FACTOR_Y
         # 1. Швидке оновлення кольорів
         if len(args) == 3 and isinstance(args[0], str) and ('color_var' in args[0]):
             try:
@@ -2118,12 +2134,18 @@ def draw_flowchart_window(root, function_map):
                 return
             except tk.TclError:
                 return
+
         # 2. Повне перемалювання
         try:
             zoom_display_var.set(f"{GLOBAL_SCALE_FACTOR_X:.2f}x")
             is_grid_visible = grid_visible_var.get()
-            h_scale = h_scale_var.get();
-            v_scale = v_scale_var.get();
+
+            # --- ОСЬ ЗМІНА ---
+            # 1. Об'єднуємо масштаби: (Масштаб повзунків) * (Візуальний Zoom)
+            final_h_scale = h_scale_var.get() * GLOBAL_SCALE_FACTOR_X
+            final_v_scale = v_scale_var.get() * GLOBAL_SCALE_FACTOR_Y
+            # --- КІНЕЦЬ ЗМІНИ ---
+
             loop_offset_factor = loop_offset_var.get();
             if_offset_factor = if_offset_var.get();
             selected_name = selected_func.get();
@@ -2132,19 +2154,21 @@ def draw_flowchart_window(root, function_map):
                       hex_color_var.get())
         except tk.TclError:
             return
+
+        # Використовуємо нові комбіновані змінні у логуванні
         print(
-            f"Оновлення: Функція='{selected_name}', Масштаб (ШxВ): {h_scale:.2f}x{v_scale:.2f}, ... [ПОВНЕ ПЕРЕМАЛЬОВУВАННЯ]")
+            f"Оновлення: Функція='{selected_name}', Масштаб (ШxВ): {final_h_scale:.2f}x{final_v_scale:.2f}, ... [ПОВНЕ ПЕРЕМАЛЬОВУВАННЯ]")
         code_list = function_map.get(selected_name, [])
-        # 3. Виклик головної функції малювання
-        draw_flowchart_with_offset(canvas, code_list, h_scale, v_scale, loop_offset_factor, if_offset_factor, colors,
+
+        # 3. Виклик головної функції малювання з ФІНАЛЬНИМИ масштабами
+        draw_flowchart_with_offset(canvas, code_list,
+                                   final_h_scale, final_v_scale,  # <--- ВИКОРИСТОВУЄМО НОВІ ЗМІННІ
+                                   loop_offset_factor, if_offset_factor, colors,
                                    skip_init, is_grid_visible)
-        # 4. ПОВТОРНЕ ЗАСТОСУВАННЯ ВІЗУАЛЬНОГО ЗУМУ
-        # Використовуємо Canvas.scale для повторного застосування Zoom
-        if GLOBAL_SCALE_FACTOR_X != 1.0 or GLOBAL_SCALE_FACTOR_Y != 1.0:
-            scale_x = GLOBAL_SCALE_FACTOR_X
-            scale_y = GLOBAL_SCALE_FACTOR_Y
-            # Застосовуємо трансформацію до ВСЬОГО вмісту
-            canvas.scale("all", 0, 0, scale_x, scale_y)
+
+        # 4. ВИДАЛЯЄМО СТАРИЙ КОД SCALING
+        # (Цей блок більше не потрібен, оскільки схема вже намальована у правильному масштабі)
+
         canvas.after(50, _update_minimap_viewport)
 
         actual_bbox = canvas.bbox("all")
@@ -2153,7 +2177,7 @@ def draw_flowchart_window(root, function_map):
                 scrollregion=(actual_bbox[0] - 50, actual_bbox[1] - 50, actual_bbox[2] + 50, actual_bbox[3] + 50))
         else:
             canvas.config(scrollregion=(0, 0, 800, 800))
-    # --- 4.4. Обробники Drag & Drop (Блоки та Стрілки) ---
+# --- 4.4. Обробники Drag & Drop (Блоки та Стрілки) ---
 
     def _on_block_drag_start(event):
         """Викликається при натисканні ЛКМ на полотні."""
@@ -2534,6 +2558,13 @@ def draw_flowchart_window(root, function_map):
     if_entry = ttk.Entry(scale_frame, width=5, textvariable=if_offset_var);
     if_entry.pack(side=tk.LEFT, padx=(2, 10))
 
+    tk.Label(scale_frame, text="Масштаб Тексту:").pack(side=tk.LEFT, padx=(10, 0))
+    text_scale_slider = tk.Scale(scale_frame, from_=0.5, to=3.0, resolution=0.1, orient=tk.HORIZONTAL,
+                                 variable=global_text_scale_var);
+    text_scale_slider.pack(side=tk.LEFT)
+    text_scale_entry = ttk.Entry(scale_frame, width=5, textvariable=global_text_scale_var);
+    text_scale_entry.pack(side=tk.LEFT, padx=(2, 10))
+
     # 5.3. Панель кольорів (Color Frame)
     tk.Label(color_frame, text="Start:").pack(side=tk.LEFT, padx=(5, 0));
     ttk.Entry(color_frame, width=8, textvariable=ellipse_color_var).pack(side=tk.LEFT, padx=(2, 5))
@@ -2609,12 +2640,14 @@ def draw_flowchart_window(root, function_map):
     rhombus_color_var.trace_add("write", update_colors_wrapper);
     sub_color_var.trace_add("write", update_colors_wrapper);
     hex_color_var.trace_add("write", update_colors_wrapper);
+    global_text_scale_var.trace_add("write", update_text_scale_and_redraw)
 
     # (Command для Scale, щоб спрацьовувало при русі повзунка)
     h_slider.config(command=update_drawing)
     v_slider.config(command=update_drawing)
     loop_slider.config(command=update_drawing)
     if_slider.config(command=update_drawing)
+    text_scale_slider.config(command=update_text_scale_and_redraw)
 
     # --- 7. ПЕРШИЙ ЗАПУСК ---
     update_drawing()
